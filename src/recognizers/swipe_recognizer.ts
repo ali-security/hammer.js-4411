@@ -22,7 +22,7 @@ export class SwipeRecognizer extends GestureRecognizer {
   private options: SwipeOptions;
   private startPos: Point | null = null;
 
-  static readonly DEFAULTS: SwipeOptions = {
+  static DEFAULTS: SwipeOptions = {
     minVelocity: 0.3, // ~300px/s
     maxVelocity: 8.0, // ~8000px/s (Native Android Fling Cap)
     minDist: 30,

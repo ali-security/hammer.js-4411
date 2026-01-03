@@ -19,7 +19,7 @@ export class LongPressRecognizer extends GestureRecognizer {
   private triggered = false;
   private initialEventData: GestureEventData | null = null;
 
-  static readonly DEFAULTS: LongPressOptions = {
+  static DEFAULTS: LongPressOptions = {
     slop: 10,
     duration: 500,
   };

@@ -18,7 +18,7 @@ export class TapRecognizer extends GestureRecognizer {
   private startTime = 0;
   private isFailed = false;
 
-  static readonly DEFAULTS: TapOptions = {
+  static DEFAULTS: TapOptions = {
     slop: 10,
     maxTime: 250,
   };

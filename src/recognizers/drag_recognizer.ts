@@ -23,7 +23,7 @@ export class DragRecognizer extends GestureRecognizer {
   private isDragging = false;
   private startPos: Point | null = null;
 
-  static readonly DEFAULTS: DragOptions = {
+  static DEFAULTS: DragOptions = {
     slop: 5, // Minimum 8px to start drag
   };
 

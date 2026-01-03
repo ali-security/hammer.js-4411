@@ -10,14 +10,14 @@ export interface GestureManagerOptions {
 }
 
 export class GestureManager {
-  element: HTMLElement;
+  private element: HTMLElement;
   private tracker: MotionTracker;
   private recognizers: GestureRecognizer[];
   private options: GestureManagerOptions;
   private unbindEvents: () => void;
   private unsetTouchBehavior: (() => void) | null = null;
 
-  static readonly DEFAULTS: GestureManagerOptions = {
+  static DEFAULTS: GestureManagerOptions = {
     supportedPointerTypes: ['touch', 'pen'],
     touchBehavior: {
       preventScrollX: true,
