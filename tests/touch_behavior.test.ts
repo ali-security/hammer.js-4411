@@ -71,16 +71,13 @@ describe('TouchBehavior', () => {
       setTouchBehavior(element, {preventSelect: true});
 
       expect(element.style.userSelect).toBe('none');
-      // Check for vendor prefix setting if applicable in the environment,
-      // though typically 'userSelect' is sufficient for modern jsdom/browsers.
-      // The implementation sets these:
-      expect(element.style.getPropertyValue('webkit-user-select')).toBeDefined();
+      expect(element.style.getPropertyValue('-webkit-user-select')).toBeDefined();
     });
 
     it('does not set user-select to "none" when selection is not prevented', () => {
       setTouchBehavior(element, {preventSelect: false});
       // Should be empty string (default)
-      expect(element.style.getPropertyValue('user-select')).toBe('');
+      expect(element.style.userSelect).toBe('');
     });
   });
 
@@ -120,14 +117,14 @@ describe('TouchBehavior', () => {
 
       // Verify settings applied
       expect(element.style.getPropertyValue('touch-action')).toBe('none');
-      expect(element.style.getPropertyValue('user-select')).toBe('none');
+      expect(element.style.userSelect).toBe('none');
 
       // Call cleanup
       cleanup();
 
       // Verify styles removed
       expect(element.style.getPropertyValue('touch-action')).toBe('');
-      expect(element.style.getPropertyValue('user-select')).toBe('');
+      expect(element.style.userSelect).toBe('');
 
       // Verify listener removed (context menu should no longer be prevented)
       const event = new MouseEvent('contextmenu', {cancelable: true});
