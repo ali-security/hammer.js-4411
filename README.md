@@ -10,7 +10,6 @@ This is an experimental implementation of HammerJS and will probably never relea
 const hammer = new Hammer(myElement, {
   // These are the default options...
   supportedPointerTypes: ['touch', 'pen'], // you can add 'mouse' here too.
-  coalescedEvents: true,
   touchBehavior: {
     preventScrollX: true,
     preventScrollY: true,

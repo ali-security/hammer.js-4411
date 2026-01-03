@@ -6,7 +6,6 @@ export interface GestureManagerOptions {
   // which pointer types to track.
   // see https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/pointerType
   supportedPointerTypes: ('mouse' | 'touch' | 'pen' | string)[];
-  coalescedEvents: boolean;
   touchBehavior: TouchBehavior | null;
 }
 
@@ -20,7 +19,6 @@ export class GestureManager {
 
   static readonly DEFAULTS: GestureManagerOptions = {
     supportedPointerTypes: ['touch', 'pen'],
-    coalescedEvents: true,
     touchBehavior: {
       preventScrollX: true,
       preventScrollY: true,
@@ -99,10 +97,7 @@ export class GestureManager {
     }
 
     // Handle Coalesced Events for higher fidelity physics like velocity
-    const events =
-      this.options.coalescedEvents && e.getCoalescedEvents?.().length > 0
-        ? e.getCoalescedEvents()
-        : [e];
+    const events = e.getCoalescedEvents?.().length > 0 ? e.getCoalescedEvents() : [e];
     for (const subEvent of events) {
       this.tracker.update(subEvent);
     }

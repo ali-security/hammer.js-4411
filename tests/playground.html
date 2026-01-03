@@ -51,10 +51,6 @@
   <body>
     <form id="configForm">
       <fieldset>
-        <legend>Pointer Event Options</legend>
-        <label><input type="checkbox" id="coalescedEventsCheckbox" /> Use coalesced Events</label>
-      </fieldset>
-      <fieldset>
         <legend>Supported Pointer Types</legend>
         <label><input type="checkbox" id="touchCheckbox" /> Touch</label>
         <label><input type="checkbox" id="penCheckbox" /> Pen</label>
@@ -152,7 +148,6 @@
           hammerInstance.destroy();
         }
         hammerInstance = installHammer({
-          coalescedEvents: $('#coalescedEventsCheckbox').checked,
           supportedPointerTypes,
           touchBehavior,
         });
@@ -167,7 +162,6 @@
       const defaults = Hammer.DEFAULTS;
 
       // Ensure the configured options are reflected in the config controls.
-      $('#coalescedEventsCheckbox').checked = defaults.coalescedEvents;
       $('#touchCheckbox').checked = defaults.supportedPointerTypes.includes('touch');
       $('#penCheckbox').checked = defaults.supportedPointerTypes.includes('pen');
       $('#mouseCheckbox').checked = defaults.supportedPointerTypes.includes('mouse');
