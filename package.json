@@ -44,7 +44,7 @@
     "grunt-contrib-watch": "0.6.x",
     "grunt-jscs": "^0.8.0",
     "grunt-string-replace": "^0.2.7",
-    "hammer-simulator": "git://github.com/hammerjs/simulator#master",
+    "hammer-simulator": "github:hammerjs/simulator#master",
     "jquery-hammerjs": "2.0.x"
   },
   "main": "hammer.js",

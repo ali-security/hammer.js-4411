@@ -1,0 +1,30 @@
+name: Build
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:0.10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Configure npm registry
+        run: |
+          npm config set registry https://time-machine-npm.sealsecurity.io/
+          npm config set //time-machine-npm.sealsecurity.io/:_authToken ${{ secrets.NPM_AUTH_TOKEN }}
+
+      - name: Install grunt-cli
+        run: npm install -g grunt-cli
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: grunt test-travis
