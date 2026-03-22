@@ -13,12 +13,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
+      # 1. YOUR IDEA: Download PhantomJS safely on the modern host machine
       - name: Pre-fetch PhantomJS Binary
         run: |
           mkdir -p .phantomjs-cache
           wget -O .phantomjs-cache/phantomjs-1.9.8-linux-x86_64.tar.bz2 https://github.com/Medium/phantomjs/releases/download/v1.9.19/phantomjs-1.9.8-linux-x86_64.tar.bz2
 
+      # 2. Execute in the legacy container
       - name: Build in Legacy Node 0.10 Container
         run: |
           docker run --rm \
@@ -27,21 +29,30 @@ jobs:
             -e NODE_TLS_REJECT_UNAUTHORIZED="0" \
             -e OPENSSL_CONF="/dev/null" \
             node:0.10 bash -c "
-
+              # A. Fix the ancient package manager and install font libraries so PhantomJS can run
+              sed -i s/deb.debian.org/archive.debian.org/g /etc/apt/sources.list &&
+              sed -i s/security.debian.org/archive.debian.org/g /etc/apt/sources.list &&
+              sed -i s/httpredir.debian.org/archive.debian.org/g /etc/apt/sources.list &&
+              sed -i '/updates/d' /etc/apt/sources.list &&
+              apt-get -o Acquire::Check-Valid-Until=false update &&
+              apt-get install -y --force-yes fontconfig bzip2 &&
+              
+              # B. Apply npm and Git proxy fixes
               npm config set registry https://:2016-04-22T16%3A14%3A57.222000Z@time-machines-npm.sealsecurity.io/ &&
               npm config set strict-ssl false &&
               git config --global url.'https://github.com/'.insteadOf git://github.com/ &&
               
+              # C. Copy the host-downloaded binary to the exact folder the installer expects
               mkdir -p /tmp/phantomjs &&
               cp /app/.phantomjs-cache/phantomjs-1.9.8-linux-x86_64.tar.bz2 /tmp/phantomjs/ &&
               
+              # D. Build and Test
               npm install -g grunt-cli@0.1.13 &&
               npm install &&
               grunt build &&
               npm pack
             "
 
-      # 3. Upload artifact from the modern Ubuntu host machine
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
