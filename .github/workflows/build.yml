@@ -42,4 +42,4 @@ jobs:
         with:
           name: hammerjs-package
           path: hammerjs-*.tgz
-        retention-days: 2
+          retention-days: 2
