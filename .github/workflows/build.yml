@@ -11,20 +11,35 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: node:0.10
+    env:
+      global:
+        - export NODE_TLS_REJECT_UNAUTHORIZED="0"
+        - export OPENSSL_CONF=/dev/null
+        - npm config set registry https://:2016-04-22T16%3A14%3A57.222000Z@time-machines-npm.sealsecurity.io/
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Configure npm registry
+      - name: Install phantomjs
         run: |
-          npm config set registry https://time-machine-npm.sealsecurity.io/
-          npm config set //time-machine-npm.sealsecurity.io/:_authToken ${{ secrets.NPM_AUTH_TOKEN }}
+          mkdir -p /tmp/phantomjs
+          wget --no-check-certificate -O /tmp/phantomjs/phantomjs-1.9.8-linux-x86_64.tar.bz2 https://github.com/Medium/phantomjs/releases/download/v1.9.19/phantomjs-1.9.8-linux-x86_64.tar.bz2
 
       - name: Install grunt-cli
-        run: npm install -g grunt-cli
+        run: npm install -g grunt-cli@0.1.13
 
       - name: Install dependencies
         run: npm install
 
       - name: Build
-        run: grunt test-travis
+        run: grunt build
+
+      - name: Pack
+        run: npm pack
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hammerjs-package
+          path: hammerjs-*.tgz
+        retention-days: 2
