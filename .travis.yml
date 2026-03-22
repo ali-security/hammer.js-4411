@@ -3,12 +3,10 @@ node_js:
   - '0.10'
 sudo: false
 
+
 env:
   global:
-  - export NODE_TLS_REJECT_UNAUTHORIZED="0"
   - export OPENSSL_CONF=/dev/null  
-  - npm config set strict-ssl false
-
   - npm config set registry https://:2016-04-22T16%3A14%3A57.222000Z@time-machines-npm.sealsecurity.io/
 
 before_script:
@@ -17,5 +15,5 @@ before_script:
 script:
   - grunt test-travis
 before_install:
-  - npm config set registry https://:2016-04-22T16%3A14%3A57.222000Z@time-machines-npm.sealsecurity.io/
-dist: precise
+  - mkdir -p /tmp/phantomjs
+  - wget --no-check-certificate -O /tmp/phantomjs/phantomjs-1.9.8-linux-x86_64.tar.bz2 https://github.com/Medium/phantomjs/releases/download/v1.9.19/phantomjs-1.9.8-linux-x86_64.tar.bz2
