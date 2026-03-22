@@ -49,7 +49,7 @@ jobs:
               # D. Build and Test
               npm install -g grunt-cli@0.1.13 &&
               npm install &&
-              grunt build &&
+              grunt build --force &&
               npm pack
             "
 
