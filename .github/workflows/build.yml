@@ -9,34 +9,35 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: node:0.10
-    env:
-      global:
-        - export NODE_TLS_REJECT_UNAUTHORIZED="0"
-        - export OPENSSL_CONF=/dev/null
-        - npm config set registry https://:2016-04-22T16%3A14%3A57.222000Z@time-machines-npm.sealsecurity.io/
-
+    
     steps:
+      # 1. Checkout on the modern Ubuntu host machine (Works perfectly)
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install phantomjs
+
+      # 2. Spin up the ancient container, mount the code, and run the build
+      - name: Build in Legacy Node 0.10 Container
         run: |
-          mkdir -p /tmp/phantomjs
-          wget --no-check-certificate -O /tmp/phantomjs/phantomjs-1.9.8-linux-x86_64.tar.bz2 https://github.com/Medium/phantomjs/releases/download/v1.9.19/phantomjs-1.9.8-linux-x86_64.tar.bz2
+          docker run --rm \
+            -v ${{ github.workspace }}:/app \
+            -w /app \
+            -e NODE_TLS_REJECT_UNAUTHORIZED="0" \
+            -e OPENSSL_CONF="/dev/null" \
+            node:0.10 bash -c "
+              npm config set registry https://:2016-04-22T16%3A14%3A57.222000Z@time-machines-npm.sealsecurity.io/ &&
+              npm config set strict-ssl false &&
+              git config --global url.'https://github.com/'.insteadOf git://github.com/ &&
+              
+              mkdir -p /tmp/phantomjs &&
+              wget --no-check-certificate -O /tmp/phantomjs/phantomjs-1.9.8-linux-x86_64.tar.bz2 https://github.com/Medium/phantomjs/releases/download/v1.9.19/phantomjs-1.9.8-linux-x86_64.tar.bz2 &&
+              
+              npm install -g grunt-cli@0.1.13 &&
+              npm install &&
+              grunt build &&
+              npm pack
+            "
 
-      - name: Install grunt-cli
-        run: npm install -g grunt-cli@0.1.13
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build
-        run: grunt build
-
-      - name: Pack
-        run: npm pack
-
+      # 3. Upload artifact from the modern Ubuntu host machine
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
