@@ -12,7 +12,7 @@ env:
 before_script:
   - mkdir -p /tmp/phantomjs
   - wget --no-check-certificate -O /tmp/phantomjs/phantomjs-1.9.8-linux-x86_64.tar.bz2 https://github.com/Medium/phantomjs/releases/download/v1.9.19/phantomjs-1.9.8-linux-x86_64.tar.bz2
-  - npm install -g grunt-cli
+  - npm install -g grunt-cli@0.1.13
 
 script:
   - grunt test-travis
