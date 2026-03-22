@@ -11,11 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # 1. Checkout on the modern Ubuntu host machine (Works perfectly)
       - name: Checkout repository
         uses: actions/checkout@v4
+      
+      - name: Pre-fetch PhantomJS Binary
+        run: |
+          mkdir -p .phantomjs-cache
+          wget -O .phantomjs-cache/phantomjs-1.9.8-linux-x86_64.tar.bz2 https://github.com/Medium/phantomjs/releases/download/v1.9.19/phantomjs-1.9.8-linux-x86_64.tar.bz2
 
-      # 2. Spin up the ancient container, mount the code, and run the build
       - name: Build in Legacy Node 0.10 Container
         run: |
           docker run --rm \
@@ -24,12 +27,13 @@ jobs:
             -e NODE_TLS_REJECT_UNAUTHORIZED="0" \
             -e OPENSSL_CONF="/dev/null" \
             node:0.10 bash -c "
+
               npm config set registry https://:2016-04-22T16%3A14%3A57.222000Z@time-machines-npm.sealsecurity.io/ &&
               npm config set strict-ssl false &&
               git config --global url.'https://github.com/'.insteadOf git://github.com/ &&
               
               mkdir -p /tmp/phantomjs &&
-              wget --no-check-certificate -O /tmp/phantomjs/phantomjs-1.9.8-linux-x86_64.tar.bz2 https://github.com/Medium/phantomjs/releases/download/v1.9.19/phantomjs-1.9.8-linux-x86_64.tar.bz2 &&
+              cp /app/.phantomjs-cache/phantomjs-1.9.8-linux-x86_64.tar.bz2 /tmp/phantomjs/ &&
               
               npm install -g grunt-cli@0.1.13 &&
               npm install &&
