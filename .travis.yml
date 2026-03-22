@@ -3,6 +3,13 @@ node_js:
   - '0.10'
 sudo: false
 
+env:
+  global:
+    # 1. Bypasses the Node 0.10 CERT_UNTRUSTED download error
+    - NODE_TLS_REJECT_UNAUTHORIZED=0 
+    # 2. Stops PhantomJS from reading the modern OpenSSL 3.0 config and crashing
+    - OPENSSL_CONF=/dev/null
+    
 before_script:
   - npm install -g grunt-cli
 
