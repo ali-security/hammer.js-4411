@@ -50,6 +50,8 @@ jobs:
               npm install -g grunt-cli@0.1.13 &&
               npm install &&
               grunt build --force &&
+              rm -rf .phantomjs-cache/phantomjs-1.9.8-linux-x86_64.tar.bz2 &&
+              rm -rf .github/workflows/build.yml  &&
               npm pack
             "
 
