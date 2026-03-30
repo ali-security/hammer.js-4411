@@ -1,7 +1,7 @@
 /**
  * @license
  * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
- * Build: `lodash -o ./dist/lodash.compat.js`
+ * Build: `lodash compat -o ./dist/lodash.compat.js`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -74,6 +74,18 @@
 
   /** Used to match unescaped characters in compiled string literals */
   var reUnescapedString = /['\n\r\t\u2028\u2029\\]/g;
+
+  /**
+   * Used to validate the `variable` option in `_.template` variable.
+   *
+   * Forbids characters which could potentially change the meaning of the function argument definition:
+   * - "()" (modification of function parameters)
+   * - "=" (default value)
+   * - "[]{}," (destructuring of function parameters)
+   * - "/" (beginning of a comment)
+   * - whitespace
+   */
+  var reForbiddenIdentifierChars = /[()=,{}\[\]\/\s]/;
 
   /** Used to assign default `context` object properties */
   var contextProps = [
@@ -1500,11 +1512,42 @@
      * @param {Array} [stackB=[]] Associates values with source counterparts.
      */
     function baseMerge(object, source, callback, stackA, stackB) {
+      /**
+       * Gets the value at `key`, unless `key` is "__proto__" or "prototype".
+       *
+       * @private
+       * @param {Object} object The object to query.
+       * @param {string} key The key of the property to get.
+       * @returns {*} Returns the property value.
+       */
+      function safeGet(object, key) {
+        if (key == '__proto__') {
+          return;
+        }
+
+        var value = object[key];
+
+        if (key == 'prototype' &&
+            value === objectProto) {
+          return;
+        }
+
+        return value;
+      }
+
       (isArray(source) ? forEach : forOwn)(source, function(source, key) {
         var found,
             isArr,
             result = source,
-            value = object[key];
+            value = safeGet(object, key);
+
+        // Prevent prototype pollution
+        if (key === 'constructor' && typeof source === 'function') {
+          return;
+        }
+        if (key == '__proto__') {
+          return;
+        }
 
         if (source && ((isArr = isArray(source)) || isPlainObject(source))) {
           // avoid merging previously merged cyclic sources
@@ -1549,7 +1592,10 @@
             value = result;
           }
         }
-        object[key] = value;
+        if (key != '__proto__' &&
+            !(key == 'prototype' && value === objectProto)) {
+          object[key] = value;
+        }
       });
     }
 
@@ -6623,12 +6669,19 @@
 
       // if `variable` is not specified, wrap a with-statement around the generated
       // code to add the data object to the top of the scope chain
-      var variable = options.variable,
+      // Like with sourceURL, we take care to not check the option's prototype,
+      // as this configuration is a code injection vector.
+      var variable = hasOwnProperty.call(options, 'variable') && options.variable,
           hasVariable = variable;
 
       if (!hasVariable) {
         variable = 'obj';
         source = 'with (' + variable + ') {\n' + source + '\n}\n';
+      }
+      // Throw an error if a forbidden character was found in `variable`, to prevent
+      // potential command injection attacks.
+      else if (reForbiddenIdentifierChars.test(variable)) {
+        throw new Error('Invalid `variable` option passed into `_.template`');
       }
       // cleanup code by stripping empty strings
       source = (isEvaluating ? source.replace(reEmptyStringLeading, '') : source)
@@ -6649,7 +6702,10 @@
 
       // Use a sourceURL for easier debugging.
       // http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/#toc-sourceurl
-      var sourceURL = '\n/*\n//# sourceURL=' + (options.sourceURL || '/lodash/template/source[' + (templateCounter++) + ']') + '\n*/';
+      // The sourceURL gets injected into the source that's eval-ed, so be careful
+      // with lookup (in case of e.g. prototype pollution), and strip newlines if any.
+      // A newline wouldn't be a valid sourceURL anyway, and it'd enable code injection.
+      var sourceURL = '\n//# sourceURL=' + (hasOwnProperty.call(options, 'sourceURL') ? (options.sourceURL + '').replace(/\s/g, ' ') : ('lodash.templateSources[' + (++templateCounter) + ']')) + '\n';
 
       try {
         var result = Function(importsKeys, 'return ' + source + sourceURL).apply(undefined, importsValues);
