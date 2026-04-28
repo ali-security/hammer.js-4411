@@ -20,6 +20,15 @@ jobs:
           mkdir -p .phantomjs-cache
           wget -O .phantomjs-cache/phantomjs-1.9.8-linux-x86_64.tar.bz2 https://github.com/Medium/phantomjs/releases/download/v1.9.19/phantomjs-1.9.8-linux-x86_64.tar.bz2
 
+      - name: Seal Security Fix
+        uses: seal-community/cli-action@latest
+        with:
+          mode: fix
+          fix_mode: remote
+          token: ${{ secrets.SEAL_TOKEN }}
+          project: hammer.js-4411
+          target: package.json
+
       # 2. Execute in the legacy container
       - name: Build in Legacy Node 0.10 Container
         run: |
